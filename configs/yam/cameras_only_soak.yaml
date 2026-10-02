@@ -1,0 +1,120 @@
+version: "1"
+# CAMERAS-ONLY SOAK CONFIG — the fault-injection target for the camera-hardening run.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# WHY THIS FILE EXISTS, AND WHY IT CONTAINS NO RobotNode
+#
+# The YAM arm has NO BRAKES. It sags whenever nothing commands it (joint 2 was
+# measured sagging +48.65 deg during a power gap while parked at home). Starting,
+# stopping or killing a session that contains a RobotNode is therefore a physical
+# risk, and this whole hardening exercise is built on being able to SIGKILL,
+# SIGSTOP, starve and restart the thing under test at will.
+#
+# So the thing under test is this config: the four camera nodes and NOTHING else.
+# No RobotNode, no AgentNode, no gello, no viser, no record_topic. A CameraNode
+# opens a USB device and publishes frames; it commands no motor and energises no
+# arm. Killing this config can do nothing worse than drop a camera stream.
+#
+# tools/camera_soak.py refuses to start any config that contains a RobotNode, and
+# refuses to run while a session is listening on the live ports. Belt and braces:
+# the guard is in the runner, and the danger is absent from the config.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# PORTS — 5565/5566, NOT 5555/5556
+#
+# 5555/5556 is the live bus the operator's teleop session uses. This config is
+# always launched onto 5565/5566 by tools/camera_soak.py (--pub-port/--sub-port).
+# Nothing here binds 8799 (cockpit), 8791 (live_server), 8792 (control) or
+# 8793 (episode_server) either.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# THE CAMERAS ARE COPIED FROM yam_right_kitting_teleop.yaml, VERBATIM
+#
+# Same device ids, same by-path device nodes, same resolutions, same publish_resize
+# geometry, same v4l2 controls. If they drift apart this config stops being a
+# faithful test of what the operator actually records with. When the teleop config
+# changes a camera, change it here too.
+#
+# THE REALSENSE PAIR CANNOT BE OPENED TWICE. camera_top and camera_scan are claimed
+# by whichever process opens them first, so this config must never run at the same
+# time as a live session. That is exactly what the runner's guard enforces.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# HOW TO RUN IT
+#
+#   cd ~/Desktop/kitting-v2/rl-teleop
+#   ./.venv/bin/python3 tools/camera_soak.py --duration 60          # smoke
+#   ./.venv/bin/python3 tools/camera_soak.py --duration 3600 --faults  # 1 h soak
+#
+# Never `rr-session configs/yam/cameras_only_soak.yaml` by hand: that would use the
+# default 5555/5556 ports and collide with the live bus.
+
+session:
+  # Soak recordings go to a scratch root, never into the operator's recordings/.
+  # tools/camera_soak.py overrides this with a temp dir anyway; the value here is
+  # a safe default for a hand-run.
+  save_root: /tmp/camera_soak_recordings
+  # NO record_topic. Nothing on this bus produces a record signal, and an episode
+  # must only ever start because a test asked for one.
+
+nodes:
+  # ── TOP-DOWN CAMERA (operator: "top-down", also "egocentric") ──────────────
+  # D455. Currently on PCI 0000:71:00.0, the ASMedia ASM4242 that has died twice
+  # with "HC died" — see SUDO-QUEUE.sh PHYSICAL block. Software cannot fix that;
+  # this config only has to notice within a bounded time and say so.
+  - type: CameraNode
+    name: camera_top
+    driver: RealSenseCamera
+    device_id: "203522250539"
+    resolution: [1280, 720]
+    fps: 30
+    enable_depth: false
+    publish_resize: [270, 480]   # [HEIGHT, WIDTH] — NOT [W,H]
+    publish_resize_mode: pad
+
+  # ── SCANNING CAMERA (operator: "scanning camera") ─────────────────────────
+  # D435i on a USB 2.0 link (480M), which caps 1280x720 at 15 Hz. Resolution is
+  # load-bearing (OCR of part numbers, ~800 px across the label); frame rate is
+  # not. Do not "fix" the 15 by raising it — fix the cable.
+  - type: CameraNode
+    name: camera_scan
+    driver: RealSenseCamera
+    device_id: "241222077246"
+    resolution: [1280, 720]
+    fps: 15
+    enable_depth: false
+    publish_resize: [270, 480]   # [HEIGHT, WIDTH] — NOT [W,H]
+    publish_resize_mode: pad
+
+  # ── RIGHT WRIST CAMERA ────────────────────────────────────────────────────
+  # Innomaker. Shares USB serial SN0001 with the left one, so the by-path port is
+  # its ONLY identity and /dev/videoN changes on every replug. Moved from
+  # usb-0:1.1 to usb-0:1.2 by a replug on 2026-08-11 19:46. Verify by FRAME
+  # CONTENT after any physical change: wrist right sees the red source bin.
+  - type: CameraNode
+    name: camera_right
+    driver: OpenCVCamera
+    device_path: /dev/v4l/by-path/pci-0000:74:00.0-usb-0:1.2:1.0-video-index0
+    resolution: [640, 480]
+    fps: 30
+    publish_resize: [240, 320]   # [HEIGHT, WIDTH] — NOT [W,H]
+    publish_resize_mode: pad
+    v4l2_controls:
+      brightness: 0
+      contrast: 28
+      saturation: 64
+
+  # ── LEFT WRIST CAMERA ─────────────────────────────────────────────────────
+  # usb-0:1.3. Sees the gripper jaws over the dark mat.
+  - type: CameraNode
+    name: camera_left
+    driver: OpenCVCamera
+    device_path: /dev/v4l/by-path/pci-0000:74:00.0-usb-0:1.3:1.0-video-index0
+    resolution: [640, 480]
+    fps: 30
+    publish_resize: [240, 320]   # [HEIGHT, WIDTH] — NOT [W,H]
+    publish_resize_mode: pad
+    v4l2_controls:
+      brightness: 0
+      contrast: 28
+      saturation: 64

@@ -1,0 +1,44 @@
+*.egg-info/
+*.egg/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+*.png
+__pycache__/
+.venv/
+.ruff_cache/
+.env
+recordings/
+.review/
+.omo/*
+!.omo/drafts/
+!.omo/drafts/**
+!.omo/plans/
+!.omo/plans/**
+outputs/
+*.pt
+.review-grasps/
+.omc/
+*.bak-viser
+
+# --- overnight ACT sweep (2026-08-08) ---
+# Checkpoints and logs are large and reproducible from queue.json + results.jsonl.
+# results.jsonl IS tracked: it is the record of what was actually run and what it
+# produced, which is the part that cannot be regenerated.
+sweeps/outputs/
+sweeps/logs/
+sweeps/results-smoke.jsonl
+
+# These three are SYMLINKS in the kitting-v2 working copy, pointing at the live
+# production tree. Git does not treat a symlink as a directory, so the existing
+# `outputs/` style rules (trailing slash = directory only) do not match them and
+# they would otherwise be committed as symlink blobs pointing outside the repo.
+/.venv
+/outputs
+/recordings
+sweeps/*-driver.log

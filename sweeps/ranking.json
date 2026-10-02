@@ -1,0 +1,263 @@
+[
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.03333333333333333,
+    "approach_l1_rad": 0.032503643055920316,
+    "score": 0.9183260472214927,
+    "ckpt": "outputs/w_kl1/checkpoints/006000/pretrained_model",
+    "run": "w_kl1"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.03333333333333333,
+    "approach_l1_rad": 0.03278256045825101,
+    "score": 0.9177682124168313,
+    "ckpt": "outputs/ft_from_v1_6k/checkpoints/006000/pretrained_model",
+    "run": "ft_from_v1_6k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.03333333333333333,
+    "approach_l1_rad": 0.033389314500279564,
+    "score": 0.9165547043327742,
+    "ckpt": "outputs/w_ft_12k/checkpoints/009000/pretrained_model",
+    "run": "w_ft_12k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.03333333333333333,
+    "approach_l1_rad": 0.03542561949994845,
+    "score": 0.9124820943334364,
+    "ckpt": "outputs/w_ft_12k/checkpoints/012000/pretrained_model",
+    "run": "w_ft_12k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.06666666666666667,
+    "approach_l1_rad": 0.031683995413796365,
+    "score": 0.903298675839074,
+    "ckpt": "outputs/w_seed2/checkpoints/003000/pretrained_model",
+    "run": "w_seed2"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.05,
+    "approach_l1_rad": 0.03747103016595499,
+    "score": 0.90005793966809,
+    "ckpt": "outputs/v_warm/checkpoints/000006/pretrained_model",
+    "run": "v_warm"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.06666666666666667,
+    "approach_l1_rad": 0.03354399587433982,
+    "score": 0.899578674917987,
+    "ckpt": "outputs/ft_from_v1_6k/checkpoints/003000/pretrained_model",
+    "run": "ft_from_v1_6k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.06666666666666667,
+    "approach_l1_rad": 0.033614695159057045,
+    "score": 0.8994372763485525,
+    "ckpt": "outputs/w_kl1/checkpoints/003000/pretrained_model",
+    "run": "w_kl1"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.05,
+    "approach_l1_rad": 0.037824233685654796,
+    "score": 0.8993515326286904,
+    "ckpt": "outputs/ft_from_v1_20k/checkpoints/020000/pretrained_model",
+    "run": "ft_from_v1_20k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.06666666666666667,
+    "approach_l1_rad": 0.034183140179232026,
+    "score": 0.8983003863082026,
+    "ckpt": "outputs/w_seed2/checkpoints/006000/pretrained_model",
+    "run": "w_seed2"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.06666666666666667,
+    "approach_l1_rad": 0.03542112370138272,
+    "score": 0.8958244192639012,
+    "ckpt": "outputs/ft_from_v1_20k/checkpoints/010000/pretrained_model",
+    "run": "ft_from_v1_20k"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.08333333333333334,
+    "approach_l1_rad": 0.03514381668790743,
+    "score": 0.8880456999575185,
+    "ckpt": "outputs/w_frozen/checkpoints/006000/pretrained_model",
+    "run": "w_frozen"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.1,
+    "approach_l1_rad": 0.03594631384542138,
+    "score": 0.8781073723091573,
+    "ckpt": "outputs/w_frozen/checkpoints/003000/pretrained_model",
+    "run": "w_frozen"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2,
+    "approach_l1_rad": 0.05729841967975529,
+    "score": 0.7854031606404894,
+    "ckpt": "outputs/s_base_seed2/checkpoints/020000/pretrained_model",
+    "run": "s_base_seed2"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2,
+    "approach_l1_rad": 0.058264997282887,
+    "score": 0.7834700054342261,
+    "ckpt": "outputs/s_base/checkpoints/010000/pretrained_model",
+    "run": "s_base"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2,
+    "approach_l1_rad": 0.058757964359306296,
+    "score": 0.7824840712813874,
+    "ckpt": "outputs/s_chunk150/checkpoints/020000/pretrained_model",
+    "run": "s_chunk150"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.05643572082731396,
+    "score": 0.7704618916787054,
+    "ckpt": "outputs/s_kl1/checkpoints/010000/pretrained_model",
+    "run": "s_kl1"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.05732816393403185,
+    "score": 0.7686770054652696,
+    "ckpt": "outputs/s_kl1/checkpoints/020000/pretrained_model",
+    "run": "s_kl1"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.05878134896555068,
+    "score": 0.765770635402232,
+    "ckpt": "outputs/s_base/checkpoints/020000/pretrained_model",
+    "run": "s_base"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.06081148018224943,
+    "score": 0.7617103729688345,
+    "ckpt": "outputs/s_chunk150/checkpoints/010000/pretrained_model",
+    "run": "s_chunk150"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.26666666666666666,
+    "approach_l1_rad": 0.05674085606055298,
+    "score": 0.7531849545455608,
+    "ckpt": "outputs/s_frozen/checkpoints/020000/pretrained_model",
+    "run": "s_frozen"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.26666666666666666,
+    "approach_l1_rad": 0.05780889291456177,
+    "score": 0.7510488808375432,
+    "ckpt": "outputs/s_base_seed2/checkpoints/010000/pretrained_model",
+    "run": "s_base_seed2"
+  },
+  {
+    "n": 18,
+    "close_rate": 0.9444444444444444,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.03875096864913759,
+    "score": 0.7502758404795026,
+    "ckpt": "outputs/s_chunk50/checkpoints/020000/pretrained_model",
+    "run": "s_chunk50"
+  },
+  {
+    "n": 18,
+    "close_rate": 0.9444444444444444,
+    "close_dt_med_s": 0.23333333333333334,
+    "approach_l1_rad": 0.03925378599381084,
+    "score": 0.749270205790156,
+    "ckpt": "outputs/s_chunk50/checkpoints/010000/pretrained_model",
+    "run": "s_chunk50"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2833333333333333,
+    "approach_l1_rad": 0.05655403218558232,
+    "score": 0.7452252689621688,
+    "ckpt": "outputs/s_frozen/checkpoints/010000/pretrained_model",
+    "run": "s_frozen"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2833333333333333,
+    "approach_l1_rad": 0.06049321231779644,
+    "score": 0.7373469086977406,
+    "ckpt": "outputs/s_novae/checkpoints/020000/pretrained_model",
+    "run": "s_novae"
+  },
+  {
+    "n": 18,
+    "close_rate": 1.0,
+    "close_dt_med_s": 0.2833333333333333,
+    "approach_l1_rad": 0.06111267138197967,
+    "score": 0.736107990569374,
+    "ckpt": "outputs/s_novae/checkpoints/010000/pretrained_model",
+    "run": "s_novae"
+  },
+  {
+    "n": 18,
+    "close_rate": 0.7222222222222222,
+    "close_dt_med_s": 0.26666666666666666,
+    "approach_l1_rad": 0.03717787283573087,
+    "score": 0.5145331432174272,
+    "ckpt": "outputs/s_chunk30/checkpoints/020000/pretrained_model",
+    "run": "s_chunk30"
+  },
+  {
+    "n": 18,
+    "close_rate": 0.6111111111111112,
+    "close_dt_med_s": 0.3,
+    "approach_l1_rad": 0.033793970308020865,
+    "score": 0.3935231704950694,
+    "ckpt": "outputs/s_chunk30/checkpoints/010000/pretrained_model",
+    "run": "s_chunk30"
+  }
+]

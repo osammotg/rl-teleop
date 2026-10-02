@@ -1,0 +1,85 @@
+version: "1"
+# HARDWARE-FREE SOAK CONFIG — four synthetic cameras, no /dev/video*, no RealSense.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# WHY A SECOND SOAK CONFIG
+#
+# cameras_only_soak.yaml opens the four REAL cameras, so it can only run when
+# nothing else owns them. On 2026-08-11 a live teleop session came up in the
+# middle of the hardening run and took all four — and the RealSense pair cannot
+# be opened twice, so running the real config then would have stolen the
+# operator's cameras or failed trying.
+#
+# Everything that makes Tier B valuable is about PROCESSES, not devices:
+# SIGSTOP (the exact shape of the failure-#4 hang), SIGKILL and zombie reaping,
+# a killed broker, a squatted port, CPU starvation, and cold start after the
+# whole tree is SIGKILLed. None of that needs a camera to be real. This config
+# keeps all of it available while the rig is busy.
+#
+# It is NOT a substitute for the real config. What it cannot test: USB
+# enumeration, by-path identity, RealSense pipeline restart, USB 2.0 profile
+# negotiation, and controller death. Those need hardware and the report says so.
+#
+# NO RobotNode. NO AgentNode. The arm has no brakes and this file is a target for
+# kill signals. tools/camera_soak.py refuses to start any config containing one.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# INJECTING A FAULT
+#
+# Each camera polls a fault file. Write a mode name into it and the driver
+# starts misbehaving; empty the file and it recovers. Modes are the catalogue in
+# robots_realtime/sensors/cameras/fault_injection.py:
+#
+#   ok  ret_false  hang  raise  frozen  none  resolution_change  gone
+#
+#   mkdir -p /tmp/soak_faults
+#   echo frozen > /tmp/soak_faults/camera_top     # same frame forever, no error
+#   : > /tmp/soak_faults/camera_top               # healthy again
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# PORTS: launched on 5565/5566 by tools/camera_soak.py. Never 5555/5556.
+#
+#   ./.venv/bin/python3 tools/camera_soak.py \
+#       --config configs/yam/cameras_only_soak_fake.yaml --duration 3600 --faults
+
+session:
+  save_root: /tmp/camera_soak_recordings
+
+nodes:
+  # Geometry mirrors the real cameras so publish_resize, the bus payload size and
+  # the writer all behave as they do in production.
+  - type: CameraNode
+    name: camera_top
+    driver: robots_realtime.sensors.cameras.fault_injection:SoakCamera
+    resolution: [1280, 720]
+    fps: 30
+    fault_file: /tmp/soak_faults/camera_top
+    publish_resize: [270, 480]   # [HEIGHT, WIDTH] — NOT [W,H]
+    publish_resize_mode: pad
+
+  - type: CameraNode
+    name: camera_scan
+    driver: robots_realtime.sensors.cameras.fault_injection:SoakCamera
+    resolution: [1280, 720]
+    fps: 15
+    fault_file: /tmp/soak_faults/camera_scan
+    publish_resize: [270, 480]
+    publish_resize_mode: pad
+
+  - type: CameraNode
+    name: camera_right
+    driver: robots_realtime.sensors.cameras.fault_injection:SoakCamera
+    resolution: [640, 480]
+    fps: 30
+    fault_file: /tmp/soak_faults/camera_right
+    publish_resize: [240, 320]
+    publish_resize_mode: pad
+
+  - type: CameraNode
+    name: camera_left
+    driver: robots_realtime.sensors.cameras.fault_injection:SoakCamera
+    resolution: [640, 480]
+    fps: 30
+    fault_file: /tmp/soak_faults/camera_left
+    publish_resize: [240, 320]
+    publish_resize_mode: pad

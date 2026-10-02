@@ -1,0 +1,91 @@
+version: "1"
+
+session:
+  save_root: recordings/cosmos25_pixel_idm_chunk_policy_sim
+  start_paused: false
+  record_on_unpause: false
+
+nodes:
+  - type: AgentNode
+    name: cosmos25_pixel_idm_policy
+    agent_class: robots_realtime.agents.policy_learning.cosmos25_pixel_idm_chunk_agent:Cosmos25PixelIDMChunkAgent
+    agent_kwargs:
+      cosmos_url:
+      pixel_idm_url:
+      prompt:
+      source_hz: 10
+      command_hz: 30
+      cosmos_video_fps: 16
+      image_key: top_camera
+      validate_only:
+      array_key: predicted_actions
+      request_timeout_s: 900
+      num_latent_conditional_frames: 2
+      open_video_plan: true
+      left_limits_path: robot_configs/yam/xdof_hq/left.yaml
+      right_limits_path: robot_configs/yam/xdof_hq/right.yaml
+      limit_tolerance: 0.05
+      gripper_clamp_tolerance: 0.02
+      max_handoff_distance: 0.75
+    state_topics:
+      left: yam/left_state
+      right: yam/right_state
+    image_topics:
+      top_camera: camera_top/rgb
+    loop_mode: fixed_rate
+    poll_freq: 30
+
+  - type: CameraNode
+    name: camera_top
+    driver: RealSenseCamera
+    device_id: "203522250539"
+    resolution: VGA
+    fps: 30
+
+  - type: XdofSimNode
+    name: yam
+    scene: hybrid
+    task: bottles
+    physics_dt: 0.0001
+    control_decimation: 17
+    camera_fps: 30.0
+    viser_port: 8765
+    vr_port:
+    cmd_topics:
+      left: cosmos25_pixel_idm_policy/left_pos
+      right: cosmos25_pixel_idm_policy/right_pos
+
+  - type: ViserMonitorNode
+    name: viz
+    port: 8080
+    viz_freq: 20
+    auto_open_browser: true
+    fullscreen: true
+    up_axis: "+z"
+    initial_camera_position: [-0.7, -0.31, 0.3]
+    initial_camera_look_at: [0.45, -0.31, 0.3]
+    chunk_topic: cosmos25_pixel_idm_policy/chunk
+    n_chunk_frames: 10
+    chunk_frame_axes_length: 0.03
+    urdfs:
+      yam_left:
+        path: dependencies/i2rt/i2rt/robot_models/arm/yam/yam.urdf
+        state_topic: yam/left_state
+        flip_joints: true
+        chunk_arm_key: left
+        gripper:
+          type: linear_4310
+          attach_link: link_6
+      yam_right:
+        path: dependencies/i2rt/i2rt/robot_models/arm/yam/yam.urdf
+        state_topic: yam/right_state
+        flip_joints: true
+        chunk_arm_key: right
+        gripper:
+          type: linear_4310
+          attach_link: link_6
+        extrinsic:
+          position: [0.0, -0.61, 0.0]
+          rotation: [1.0, 0.0, 0.0, 0.0]
+    image_topics:
+      top: cosmos25_pixel_idm_policy/image/top_camera
