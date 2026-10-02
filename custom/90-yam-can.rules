@@ -1,0 +1,17 @@
+# YAM CAN interface persistent names
+# Install with: sudo cp custom/90-yam-can.rules /etc/udev/rules.d/90-yam-can.rules
+# Then: sudo udevadm control --reload-rules && sudo systemctl restart systemd-udevd
+# Replug CANables after reloading rules.
+
+# Followers:
+# Left follower was unplugged during identification, so can1 disappeared.
+# Therefore serial 00580051594E501820313332 is left follower.
+# Right follower remained connected as can0.
+# Therefore serial 0044003C594E501820313332 is right follower.
+SUBSYSTEM=="net", ACTION=="add", ATTRS{serial}=="00580051594E501820313332", NAME="can_follow_l"
+SUBSYSTEM=="net", ACTION=="add", ATTRS{serial}=="0044003C594E501820313332", NAME="can_follow_r"
+
+# Leader CANable serials are not filled here yet.
+# If leaders also need CAN names, identify them one at a time and add:
+# SUBSYSTEM=="net", ACTION=="add", ATTRS{serial}=="<LEFT_LEADER_CAN_SERIAL>", NAME="can_tleader_l"
+# SUBSYSTEM=="net", ACTION=="add", ATTRS{serial}=="<RIGHT_LEADER_CAN_SERIAL>", NAME="can_tleader_r"

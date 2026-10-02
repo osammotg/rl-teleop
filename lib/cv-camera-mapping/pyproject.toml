@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cv-camera-mapping"
+version = "0.1.0"
+description = "Persistent OpenCV camera role mapping via V4L2 enumeration and visual fingerprinting"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "opencv-python",
+    "numpy",
+    "pydantic>=2",
+]
+
+[project.scripts]
+cv-camera-map = "cv_camera_mapping.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.12",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["cv_camera_mapping"]
+
+[tool.ruff]
+line-length = 119
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

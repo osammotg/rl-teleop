@@ -1,0 +1,62 @@
+{
+ "note": "R0 -- the warm-start branch. Stream E's measurement says the from-scratch arms are exploring the weaker branch, and this is the cheapest run available.",
+ "runs": [
+  {
+   "id": "v_warm",
+   "note": "6-step validation that --policy.path loads the rebased checkpoint",
+   "keep_checkpoints": 1,
+   "timeout_s": 900,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--steps=6",
+    "--save_freq=6"
+   ]
+  },
+  {
+   "id": "ft_from_v1_6k",
+   "note": "Warm start from the v1 two-camera 50k checkpoint rebased to wrist-only, fine-tuned 6k steps on the TRAIN split. This reproduces the recipe that produced the DEPLOYED checkpoint -- which the validated proxy ranks above from-scratch 7/7 on held-out grasps despite printing a 31% worse loss. Generalisation gap 1.43x warm vs 2.31x scratch.",
+   "keep_checkpoints": 2,
+   "timeout_s": 3600,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--steps=6000",
+    "--save_freq=3000"
+   ]
+  },
+  {
+   "id": "ft_from_v1_20k",
+   "note": "Same warm start at 20k steps, so it is directly comparable with the eight from-scratch arms of the main sweep.",
+   "keep_checkpoints": 2,
+   "timeout_s": 7200,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--steps=20000",
+    "--save_freq=10000"
+   ]
+  }
+ ]
+}

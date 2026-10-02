@@ -1,0 +1,123 @@
+{
+  "note": "6-step flag validation. Proves draccus accepts every unusual flag before the real sweep commits hours to them.",
+  "runs": [
+    {
+      "id": "v_chunk30",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=30",
+        "--policy.n_action_steps=30"
+      ]
+    },
+    {
+      "id": "v_chunk150",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=150",
+        "--policy.n_action_steps=150"
+      ]
+    },
+    {
+      "id": "v_kl1",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=100",
+        "--policy.n_action_steps=100",
+        "--policy.kl_weight=1.0"
+      ]
+    },
+    {
+      "id": "v_novae",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=100",
+        "--policy.n_action_steps=100",
+        "--policy.use_vae=false"
+      ]
+    },
+    {
+      "id": "v_frozen",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=100",
+        "--policy.n_action_steps=100",
+        "--policy.optimizer_lr_backbone=0.0"
+      ]
+    },
+    {
+      "id": "v_lr3e5",
+      "keep_checkpoints": 1,
+      "timeout_s": 600,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=6",
+        "--save_freq=6",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--seed=1000",
+        "--wandb.enable=false",
+        "--policy.chunk_size=100",
+        "--policy.n_action_steps=100",
+        "--policy.optimizer_lr=3e-5"
+      ]
+    }
+  ]
+}

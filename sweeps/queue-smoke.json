@@ -1,0 +1,22 @@
+{
+  "note": "Smoke queue. Proves the training pipeline actually runs end to end on this box before the real sweep commits a night of GPU to it. Tiny on purpose: 20 steps, batch 2, one checkpoint. Should finish in a couple of minutes and cost well under a GB.",
+  "runs": [
+    {
+      "id": "smoke_v2_wrist",
+      "note": "Does train_act_dark_noise.py + the predecoded patch actually produce a checkpoint on yam_grasp_v2_wrist?",
+      "keep_checkpoints": 1,
+      "timeout_s": 1800,
+      "args": [
+        "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+        "--policy.type=act",
+        "--policy.device=cuda",
+        "--policy.push_to_hub=false",
+        "--steps=20",
+        "--save_freq=20",
+        "--batch_size=2",
+        "--num_workers=2",
+        "--wandb.enable=false"
+      ]
+    }
+  ]
+}

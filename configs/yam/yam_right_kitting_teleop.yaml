@@ -1,0 +1,236 @@
+version: "1"
+# Single-arm (RIGHT) kitting teleop — the SOURCE-BOX half of the bimanual plan.
+#
+# Left arm keeps its job (mat -> kitting box) and every bit of its calibration.
+# This config drives the NEW job: source box -> mat. See AUTOPILOT.md for why the
+# split is that way round — it confines every unvalidated thing to one arm.
+#
+# Modelled line-for-line on yam_left_kitting_teleop.yaml. Where it differs, the
+# difference is commented. THREE OF THOSE DIFFERENCES WILL STOP THIS CONFIG FROM
+# RUNNING TODAY AND ARE MEANT TO — read the four blockers below before launching.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# BLOCKER 1 — can_follow_r IS DOWN.
+#   robot_configs/yam/right.yaml drives channel "can_follow_r". As of 2026-08-08
+#   that interface exists but is DOWN (can_follow_l is UP). The RobotNode will
+#   fail to open the motor chain and the session will not start.
+#   Check, and only check:      ip -br link show can_follow_r
+#   Bringing it up is a physical/electrical act on a powered brakeless arm and is
+#   deliberately NOT scripted here. Do it with the arm supported.
+#
+# BLOCKER 2 — THERE IS NO RIGHT WRIST CAMERA CONFIGURED, AND THIS FILE DOES NOT
+#   PRETEND OTHERWISE. camera_top, camera_scan and camera_left are configured on
+#   this rig; camera_right is not. yam_bimanual_dynamixel_gello_teleop.yaml
+#   carries a candidate device_path (usb-0:1.2) but it is STALE and unverified:
+#   that same file lists camera_left on usb-0:1.4 while the live left kitting
+#   config uses usb-0:1.3, which is the by-path drift its own comment warns
+#   about. The two Innomaker cams share a serial, so the mapping is by USB port
+#   and can change across reboots and replugs.
+#   Consequences, stated rather than discovered:
+#     * The block below is COMMENTED OUT. An enabled node with a wrong path can
+#       claim the LEFT wrist camera and break the running left session.
+#     * `image_topics` below does NOT list a right panel. A configured-but-black
+#       panel reads as "camera present, scene dark", which is the same class of
+#       lie as a keep-out that is unmodelled and reported as clear.
+#     * Episodes recorded with this config have NO right wrist video. ACT for the
+#       left arm is wrist-conditioned; a right-arm policy trained without a wrist
+#       view is not the same experiment. Recording without it is still worth
+#       doing for joint trajectories and for the top/scan views — just do not
+#       later mistake the dataset for a wrist-camera dataset.
+#   To enable it: plug the camera, run
+#       scripts/check_setup.py configs/yam/yam_right_kitting_teleop.yaml
+#   confirm WHICH by-path node actually delivers frames, paste it below,
+#   uncomment the node, and add `right: camera_right/rgb` to image_topics.
+#
+# BLOCKER 3 — THE REALSENSE CAMERAS CANNOT BE OPENED TWICE.
+#   camera_top (D455 203522250539) and camera_scan (D435i 241222077246) are
+#   claimed by whichever session starts first. If a left kitting session is
+#   already up — and on this rig one has been up for days — starting this config
+#   as written will fail on the RealSense claim, or worse, steal the device from
+#   the running left session and take production down.
+#   For the operator's actual recording flow (AUTOPILOT.md: one continuous
+#   episode, one arm at a time) what is wanted is a COMBINED bimanual kitting
+#   config with one set of camera nodes and both arms, not two sessions. That
+#   file is not this file. Use this one only when the left session is stopped.
+#
+# BLOCKER 4 — NOTHING IN yam-pick-pipeline IS CALIBRATED FOR THIS ARM.
+#   results/calibration.json, keepout.json, tray_box.json and the 77 demos are
+#   all in the LEFT arm's base frame. This config is for TELEOP AND RECORDING
+#   ONLY. Do not point run_pick.py, sort_server.py or act_runner.py at this arm.
+#   bimanual/collision.py additionally has no measured base separation: the URDF
+#   says the second base is 0.570 m away in -y and every yam_bimanual_*.yaml
+#   viser extrinsic says 0.610 m. Until somebody measures it, that 40 mm is
+#   being carried as extra collision margin.
+#
+# Before running: verify camera device paths + CAN/leader ports with
+#   uv run python scripts/check_setup.py configs/yam/yam_right_kitting_teleop.yaml
+session:
+  save_root: recordings
+  record_topic: gello_right/record
+  # Number keys tag the saved episode. For the bimanual flow the RIGHT arm's
+  # episode is the fill half: box -> mat.
+  instructions:
+    1: "fill the mat from the source box: reach in, grasp a bag, place it flat on the mat"
+    0: "play data"
+
+nodes:
+  - type: AgentNode
+    name: gello_right
+    # cpu 8, not 6: 6 is the left leader's pin in yam_left_kitting_teleop.yaml and
+    # yam_bimanual_dynamixel_gello_teleop.yaml pins the right one to 8. Keeping
+    # the same assignment means a combined bimanual config is a concatenation of
+    # these two files rather than a re-pinning exercise.
+    pinned_cpu: 8
+    realtime_priority: 70
+    agent_class: robots_realtime.agents.teleoperation.dynamixel_gello_leader_agent:DynamixelGelloLeaderAgent
+    agent_kwargs:
+      # /dev/leader-right -> ttyUSB1, by udev rule 99-yam-ft232h-leaders.rules on
+      # FT232H serial FTA2U44N. Note 99-dynamixel-leaders.rules.disabled maps the
+      # SAME two serials the other way round; if the arms ever mirror each other,
+      # that file has been re-enabled.
+      port: /dev/leader-right
+      robot_name: right
+      # 8..14, not 1..7. Both leaders sit on their own port here, but the ids are
+      # kept distinct so a combined bimanual session needs no renumbering.
+      motor_ids: [8, 9, 10, 11, 12, 13, 14]
+      baudrate: 1000000
+      include_gripper: true
+      # PROVENANCE: copied verbatim from configs/yam/yam_bimanual_dynamixel_gello_teleop.yaml,
+      # which is the only file on this rig carrying a calibrated RIGHT leader.
+      # These are NOT re-derived here — a wrong offset makes the follower jump on
+      # the first tick. If the right leader has been re-assembled since that file
+      # was written, re-run the leader calibration rather than nudging these.
+      # Note joint_scales differs from the left arm on joint 3 and joint 4:
+      #   left  [1, 1, -1,  1, 1, 1]
+      #   right [1, 1,  1, -1, 1, 1]
+      # That is a real difference between the two leaders, not a typo.
+      joint_offsets_ticks: [-394, -997, 688, 1008, 1005, -18]
+      joint_scales: [1, 1, 1, -1, 1, 1]
+      joint_offsets_rad: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      gripper_open_ticks: 2280
+      gripper_closed_ticks: 2000
+      gripper_scale: 1.0
+      stale_timeout_s: 1.0
+      max_delta_rad: 3.14
+      gripper_spring: true
+      gripper_spring_current_limit: 100
+    arm_key: right
+    loop_mode: flat_out
+
+  - type: RobotNode
+    name: yam_right
+    pinned_cpu: 4          # 2 is the left follower's pin; 4 matches the bimanual config
+    realtime_priority: 85
+    # channel: can_follow_r  -- see BLOCKER 1. This file will not start until that
+    # interface is UP. That is the correct behaviour: a RobotNode that silently
+    # ran with no motor chain would report joint state that came from nowhere.
+    robot_config: robot_configs/yam/right.yaml
+    cmd_topic: gello_right/joint_pos
+    poll_freq: 200
+    startup_joint_pos: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    startup_duration_s: 2.0
+    shutdown_joint_pos: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    shutdown_duration_s: 2.0
+
+  # Live viser monitor — right arm URDF overlay + camera panels, no commands.
+  - type: ViserMonitorNode
+    name: viz
+    port: 8081             # 8080 is the left session's port; they collide otherwise
+    viz_freq: 20
+    auto_open_browser: true
+    fullscreen: true
+    up_axis: "+z"
+    initial_camera_position: [-0.7, -0.31, 0.3]
+    initial_camera_look_at:  [0.45, -0.31, 0.3]
+    urdfs:
+      yam_right:
+        path: urdf/yam.urdf
+        state_topic: yam_right/joint_state
+        flip_joints: true
+        gripper:
+          type: linear_4310
+          attach_link: link_6
+        extrinsic:
+          # 0.610 m is what every yam_bimanual_*.yaml uses, so the overlay stays
+          # consistent with the rest of the rig's visualisation. It DISAGREES
+          # with urdf/dual_yam.urdf, which says 0.570 m, and with
+          # urdf/dual_yam_generated.urdf, which says +0.500 m. Nobody has
+          # measured it. bimanual/collision.py takes the closest-together
+          # reading and carries the 40 mm spread as extra margin; when the
+          # operator measures the real number, write it to
+          # yam-pick-pipeline/results/dual_arm_bases.json AND fix it here.
+          position: [0.0, -0.61, 0.0]
+          rotation: [1.0, 0.0, 0.0, 0.0]   # wxyz identity
+    image_topics:
+      top:  camera_top/rgb
+      scan: camera_scan/rgb
+      # NO `right:` ENTRY. See BLOCKER 2. A panel pointed at a topic no node
+      # publishes shows black, and a black wrist panel is indistinguishable from
+      # a dark scene. Add it in the same commit that enables camera_right below,
+      # never before.
+
+  # D455 — angled overview / egocentric view of the whole cell.
+  # SHARED DEVICE: see BLOCKER 3. Only one session may own this.
+  - type: CameraNode
+    name: camera_top
+    driver: RealSenseCamera
+    device_id: "203522250539"
+    resolution: [1280, 720]
+    fps: 30
+    # enable_depth stays false, matching the left config. PICK-FROM-BOX Rank 2
+    # wants it ON for in-bin picking — segmenting on height above the bin floor
+    # rather than on brightness — but turning it on adds ~1.3 MB/s to a bus whose
+    # subscriber pressure is already implicated in AUDIT.md S3, and align_depth
+    # defaults to False so a colour pixel does not index the depth array. Flip it
+    # deliberately, with align_depth, not as a side effect of this file.
+    enable_depth: false
+    extrinsics:
+      position: [0.0, 0.0, 0.4]
+      rpy_radians: [1.2, 3.1416, 1.2]
+
+  # D435i mounted top-down over the box — the label/OCR "scan" view (kit list).
+  # SHARED DEVICE: see BLOCKER 3.
+  - type: CameraNode
+    name: camera_scan
+    driver: RealSenseCamera
+    device_id: "241222077246"
+    resolution: [1280, 720]   # 720p so the scan-cam OCR can read the packet part numbers
+    fps: 30
+    enable_depth: false
+
+  # ── RIGHT WRIST CAMERA: NOT CONFIGURED. See BLOCKER 2. ────────────────────
+  # This block is a TEMPLATE, not a setting. The device_path below is copied from
+  # yam_bimanual_dynamixel_gello_teleop.yaml and is known to be stale — that file
+  # also puts camera_left on usb-0:1.4 while the live left kitting config uses
+  # usb-0:1.3. Confirm which by-path node actually delivers frames FIRST; an
+  # enabled node with a wrong path can claim the left wrist camera out from under
+  # a running left session.
+  #
+  # Note the v4l2 block below follows the LEFT KITTING config, not the bimanual
+  # one: no `fourcc: MJPG`. The left config's comment explains why in detail —
+  # this cheap USB webcam ships truncated MJPEG frames under bandwidth pressure
+  # and libjpeg decodes them as a torn green-top/gray-bottom image. Raw YUYV at
+  # 640x480x2x30 (~18 MB/s) fits USB2 and cannot truncate that way. If fps has to
+  # drop for raw, lower fps rather than re-adding MJPG.
+  #
+  # - type: CameraNode
+  #   name: camera_right
+  #   driver: OpenCVCamera
+  #   device_path: /dev/v4l/by-path/pci-0000:74:00.0-usb-0:1.2:1.0-video-index0   # UNVERIFIED
+  #   resolution: [640, 480]
+  #   fps: 30
+  #   v4l2_controls:
+  #     brightness: 0
+  #     contrast: 28
+  #     saturation: 64
+  #     white_balance_automatic: 1
+  #     gamma: 100
+  #     gain: 0
+  #     power_line_frequency: 1
+  #     sharpness: 3
+  #     auto_exposure: 1
+  #     exposure_time_absolute: 50
+  #   auto_exposure_enabled: true
+  #   auto_exposure_target: 120
+  #   auto_exposure_min: 20
+  #   auto_exposure_max: 130

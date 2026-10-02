@@ -1,0 +1,456 @@
+[03:07:58] 1 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored v_warm             n=18  score=0.9001
+
+run                    n  close_rate  close_dt_s  approach_l1     score
+-----------------------------------------------------------------------
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+s_base                18       1.000       0.200      0.05826    0.7835
+s_base                18       1.000       0.233      0.05878    0.7658
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[03:34:34] 2 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored v_warm             n=18  score=0.9001
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+
+run                    n  close_rate  close_dt_s  approach_l1     score
+-----------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[04:02:21] 3 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.8995
+  scored w_ft_12k           n=18  score=0.9098
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score
+-----------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.050      0.03259    0.9098
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_ft_12k              18       1.000       0.067      0.03358    0.8995
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_chunk50             18       0.944       0.233      0.03875    0.7503
+s_chunk50             18       0.944       0.233      0.03925    0.7493
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[04:22:23] 4 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_chunk30          n=18  score=0.3935
+  scored s_chunk30          n=18  score=0.5145
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.9166
+  scored w_ft_12k           n=18  score=0.9125
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score
+-----------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.033      0.03339    0.9166
+w_ft_12k              18       1.000       0.033      0.03543    0.9125
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_chunk50             18       0.944       0.233      0.03875    0.7503
+s_chunk50             18       0.944       0.233      0.03925    0.7493
+s_chunk30             18       0.722       0.267      0.03718    0.5145
+s_chunk30             18       0.611       0.300      0.03379    0.3935
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[04:41:09] 5 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_base_seed2       n=18  score=0.7510
+  scored s_base_seed2       n=18  score=0.7854
+  scored s_chunk30          n=18  score=0.3935
+  scored s_chunk30          n=18  score=0.5145
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.9166
+  scored w_ft_12k           n=18  score=0.9125
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score
+-----------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.033      0.03339    0.9166
+w_ft_12k              18       1.000       0.033      0.03543    0.9125
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base_seed2          18       1.000       0.200      0.05730    0.7854
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_base_seed2          18       1.000       0.267      0.05781    0.7510
+s_chunk50             18       0.944       0.233      0.03875    0.7503
+s_chunk50             18       0.944       0.233      0.03925    0.7493
+s_chunk30             18       0.722       0.267      0.03718    0.5145
+s_chunk30             18       0.611       0.300      0.03379    0.3935
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[04:59:57] 6 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_base_seed2       n=18  score=0.7510
+  scored s_base_seed2       n=18  score=0.7854
+  scored s_chunk30          n=18  score=0.3935
+  scored s_chunk30          n=18  score=0.5145
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored s_novae            n=18  score=0.7361
+  scored s_novae            n=18  score=0.7373
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.9166
+  scored w_ft_12k           n=18  score=0.9125
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score  flag
+-------------------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.033      0.03339    0.9166
+w_ft_12k              18       1.000       0.033      0.03543    0.9125
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base_seed2          18       1.000       0.200      0.05730    0.7854
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_base_seed2          18       1.000       0.267      0.05781    0.7510
+s_chunk50             18       0.944       0.233      0.03875    0.7503  <-- DID NOT ALWAYS CLOSE
+s_chunk50             18       0.944       0.233      0.03925    0.7493  <-- DID NOT ALWAYS CLOSE
+s_novae               18       1.000       0.283      0.06049    0.7373
+s_novae               18       1.000       0.283      0.06111    0.7361
+s_chunk30             18       0.722       0.267      0.03718    0.5145  <-- DID NOT ALWAYS CLOSE
+s_chunk30             18       0.611       0.300      0.03379    0.3935  <-- DID NOT ALWAYS CLOSE
+
+!! 4 checkpoint(s) failed to close the jaws on some held-out grasps.
+   Rank these BELOW anything at close_rate 1.000 regardless of score -- a policy
+   that does not close is not a better policy with a worse number, it is not a policy.
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk30            close_rate 0.722 (5 of 18 held-out grasps)
+     s_chunk30            close_rate 0.611 (7 of 18 held-out grasps)
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[05:17:47] 7 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_base_seed2       n=18  score=0.7510
+  scored s_base_seed2       n=18  score=0.7854
+  scored s_chunk30          n=18  score=0.3935
+  scored s_chunk30          n=18  score=0.5145
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_frozen           n=18  score=0.7452
+  scored s_frozen           n=18  score=0.7532
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored s_novae            n=18  score=0.7361
+  scored s_novae            n=18  score=0.7373
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.9166
+  scored w_ft_12k           n=18  score=0.9125
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score  flag
+-------------------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.033      0.03339    0.9166
+w_ft_12k              18       1.000       0.033      0.03543    0.9125
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base_seed2          18       1.000       0.200      0.05730    0.7854
+s_base                18       1.000       0.200      0.05826    0.7835
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_frozen              18       1.000       0.267      0.05674    0.7532
+s_base_seed2          18       1.000       0.267      0.05781    0.7510
+s_chunk50             18       0.944       0.233      0.03875    0.7503  <-- DID NOT ALWAYS CLOSE
+s_chunk50             18       0.944       0.233      0.03925    0.7493  <-- DID NOT ALWAYS CLOSE
+s_frozen              18       1.000       0.283      0.05655    0.7452
+s_novae               18       1.000       0.283      0.06049    0.7373
+s_novae               18       1.000       0.283      0.06111    0.7361
+s_chunk30             18       0.722       0.267      0.03718    0.5145  <-- DID NOT ALWAYS CLOSE
+s_chunk30             18       0.611       0.300      0.03379    0.3935  <-- DID NOT ALWAYS CLOSE
+
+!! 4 checkpoint(s) failed to close the jaws on some held-out grasps.
+   Rank these BELOW anything at close_rate 1.000 regardless of score -- a policy
+   that does not close is not a better policy with a worse number, it is not a policy.
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk30            close_rate 0.722 (5 of 18 held-out grasps)
+     s_chunk30            close_rate 0.611 (7 of 18 held-out grasps)
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
+[05:35:41] 8 runs terminal -- re-ranking
+[predecoded_patch] active. root=/home/tommaso/.cache/lerobot-predecoded/yam_grasp_v2_wrist
+holdout recordings (3): ['episode_140454_648f75b2', 'episode_181321_dfa58b86', 'episode_220623_6f9a09d4']
+69 episodes total, 19 in the holdout
+
+  scored ft_from_v1_20k     n=18  score=0.8958
+  scored ft_from_v1_20k     n=18  score=0.8994
+  scored ft_from_v1_6k      n=18  score=0.8996
+  scored ft_from_v1_6k      n=18  score=0.9178
+  scored s_base             n=18  score=0.7835
+  scored s_base             n=18  score=0.7658
+  scored s_base_seed2       n=18  score=0.7510
+  scored s_base_seed2       n=18  score=0.7854
+  scored s_chunk150         n=18  score=0.7617
+  scored s_chunk150         n=18  score=0.7825
+  scored s_chunk30          n=18  score=0.3935
+  scored s_chunk30          n=18  score=0.5145
+  scored s_chunk50          n=18  score=0.7493
+  scored s_chunk50          n=18  score=0.7503
+  scored s_frozen           n=18  score=0.7452
+  scored s_frozen           n=18  score=0.7532
+  scored s_kl1              n=18  score=0.7705
+  scored s_kl1              n=18  score=0.7687
+  scored s_novae            n=18  score=0.7361
+  scored s_novae            n=18  score=0.7373
+  scored v_warm             n=18  score=0.9001
+  scored w_frozen           n=18  score=0.8781
+  scored w_frozen           n=18  score=0.8880
+  scored w_ft_12k           n=18  score=0.9166
+  scored w_ft_12k           n=18  score=0.9125
+  scored w_kl1              n=18  score=0.8994
+  scored w_kl1              n=18  score=0.9183
+  scored w_seed2            n=18  score=0.9033
+  scored w_seed2            n=18  score=0.8983
+
+run                    n  close_rate  close_dt_s  approach_l1     score  flag
+-------------------------------------------------------------------------------
+w_kl1                 18       1.000       0.033      0.03250    0.9183
+ft_from_v1_6k         18       1.000       0.033      0.03278    0.9178
+w_ft_12k              18       1.000       0.033      0.03339    0.9166
+w_ft_12k              18       1.000       0.033      0.03543    0.9125
+w_seed2               18       1.000       0.067      0.03168    0.9033
+v_warm                18       1.000       0.050      0.03747    0.9001
+ft_from_v1_6k         18       1.000       0.067      0.03354    0.8996
+w_kl1                 18       1.000       0.067      0.03361    0.8994
+ft_from_v1_20k        18       1.000       0.050      0.03782    0.8994
+w_seed2               18       1.000       0.067      0.03418    0.8983
+ft_from_v1_20k        18       1.000       0.067      0.03542    0.8958
+w_frozen              18       1.000       0.083      0.03514    0.8880
+w_frozen              18       1.000       0.100      0.03595    0.8781
+s_base_seed2          18       1.000       0.200      0.05730    0.7854
+s_base                18       1.000       0.200      0.05826    0.7835
+s_chunk150            18       1.000       0.200      0.05876    0.7825
+s_kl1                 18       1.000       0.233      0.05644    0.7705
+s_kl1                 18       1.000       0.233      0.05733    0.7687
+s_base                18       1.000       0.233      0.05878    0.7658
+s_chunk150            18       1.000       0.233      0.06081    0.7617
+s_frozen              18       1.000       0.267      0.05674    0.7532
+s_base_seed2          18       1.000       0.267      0.05781    0.7510
+s_chunk50             18       0.944       0.233      0.03875    0.7503  <-- DID NOT ALWAYS CLOSE
+s_chunk50             18       0.944       0.233      0.03925    0.7493  <-- DID NOT ALWAYS CLOSE
+s_frozen              18       1.000       0.283      0.05655    0.7452
+s_novae               18       1.000       0.283      0.06049    0.7373
+s_novae               18       1.000       0.283      0.06111    0.7361
+s_chunk30             18       0.722       0.267      0.03718    0.5145  <-- DID NOT ALWAYS CLOSE
+s_chunk30             18       0.611       0.300      0.03379    0.3935  <-- DID NOT ALWAYS CLOSE
+
+!! 4 checkpoint(s) failed to close the jaws on some held-out grasps.
+   Rank these BELOW anything at close_rate 1.000 regardless of score -- a policy
+   that does not close is not a better policy with a worse number, it is not a policy.
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk50            close_rate 0.944 (1 of 18 held-out grasps)
+     s_chunk30            close_rate 0.722 (5 of 18 held-out grasps)
+     s_chunk30            close_rate 0.611 (7 of 18 held-out grasps)
+
+wrote /home/tommaso/Desktop/kitting-v2/rl-teleop/sweeps/ranking.json
+
+These are CANDIDATES. The proxy agrees with the robot where the loss does not,
+but its validation is n=7. Put the top two or three on the arm before believing
+any of it.
