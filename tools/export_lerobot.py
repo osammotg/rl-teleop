@@ -64,6 +64,9 @@ from pathlib import Path
 
 import numpy as np
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import target_windows as _target_windows                        # noqa: E402
+
 from robots_realtime.labeling import constants as C
 from robots_realtime.labeling.label_episode import annotations_path
 from robots_realtime.labeling.mcap_io import read_positions
@@ -253,6 +256,13 @@ class Report:
     # decision is already in `kept`, so a corpus can be inspected before the
     # threshold is trusted.
     close_idx: list[tuple[str, int, str, bool]] = field(default_factory=list)
+    # episodes exported 10-D with target_valid=-1 everywhere because they predate the
+    # recording loop (--targets-absent mask). Named so a conditioned dataset can never
+    # quietly contain an unconditioned day.
+    masked_episodes: list[str] = field(default_factory=list)
+
+    def note_masked_episode(self, ep: str) -> None:
+        self.masked_episodes.append(ep)
 
     def note_close_idx(self, ep: str, idx: int, mode: str, kept: bool) -> None:
         self.close_idx.append((ep, int(idx), mode, bool(kept)))
@@ -429,6 +439,17 @@ WINDOWS: dict[str, list[tuple[float, float]]] | None = None
 
 
 WINDOW_TASKS: dict[str, list[str | None]] | None = None
+
+# --targets: the SAM2 target the recording loop logged per home-to-home cycle, appended
+# to observation.state as [target_u, target_v, target_valid]. None = plain export, and
+# every existing invocation stays byte-identical because build_features() and the frame
+# dict both branch on this being None. See tools/target_windows.py for the
+# representation and why it is normalised pixels rather than metres.
+TARGETS: dict[str, list] | None = None
+TARGET_MANIFEST: dict | None = None
+TARGET_DIM_NAMES = ("target_u", "target_v", "target_valid")
+# "reject" (default) or "mask" -- see the note at the per-episode check in the export loop
+TARGETS_ABSENT = "reject"
 
 
 def load_windows(path) -> dict[str, list[tuple[float, float]]]:
@@ -734,8 +755,20 @@ def build_features(shapes: dict[str, tuple[int, int]], cameras: dict | None = No
     """
     names = joint_names(arms)
     dof = (len(names),)
+    # The target rides on observation.state and NOWHERE else. Both VLAs on this rig
+    # turn observation.state into text inside the prompt (MolmoAct2 discretises it to
+    # 256 levels, processor_molmoact2.py:341-350; pi0.5 writes "Task: {task}, State:
+    # {state}", processor_pi05.py:67-74) and NEITHER reads
+    # observation.environment_state, so extra state dims are the only numeric channel
+    # that reaches either model without touching model code.
+    #
+    # ACTION IS DELIBERATELY NOT WIDENED. The deploy path truncates the policy's output
+    # to 7 (training_experiment/tools/vla_policy_server.py:214, `out = out[:, :7]`), so
+    # a wider action would train dimensions that are thrown away at inference.
+    state_names = list(names) + (list(TARGET_DIM_NAMES) if TARGETS is not None else [])
     feats = {
-        "observation.state": {"dtype": "float32", "shape": dof, "names": names},
+        "observation.state": {"dtype": "float32", "shape": (len(state_names),),
+                              "names": state_names},
         "action": {"dtype": "float32", "shape": dof, "names": names},
     }
     cams = resolve_cameras(cameras)
@@ -1151,6 +1184,29 @@ def export(root: Path, repo_id: str, out: Path | None, fps: int,
                           f"camera resolution {got} != dataset schema {shapes}")
             continue
 
+        # An episode with no target_cycles.json inside a --targets export would be
+        # written with target_valid = -1 on every frame -- indistinguishable, to the
+        # model and to every metric downstream, from a deliberately masked window. That
+        # is the one failure mode that silently costs a whole training run, so it is a
+        # rejection with a reason, mirroring load_windows' "episodes absent from the
+        # list are REJECTED loudly" rule rather than a warning nobody reads.
+        if TARGETS is not None and plan["ep"].name not in TARGETS:
+            if TARGETS_ABSENT != "mask":
+                report.reject(plan["ep"].name,
+                              "no target_cycles.json -- refusing to export it "
+                              "unconditioned into a conditioned dataset")
+                continue
+            # --targets-absent mask: DELIBERATELY export this episode 10-D with
+            # target_valid = -1 everywhere. The only legitimate use is widening an OLD
+            # corpus (recorded before the recording loop existed) so it can be merged
+            # with a conditioned one -- lerobot-edit-dataset merge requires identical
+            # features, so a 7-D and a 10-D dataset cannot be combined at all.
+            #
+            # This is exactly the state the loud rejection exists to prevent, so it is
+            # opt-in, named, and printed per episode. If it is ever used on a day that
+            # WAS recorded with the loop, that day's targets are silently discarded.
+            report.note_masked_episode(plan["ep"].name)
+
         streams = {c: CameraStream(*plan["cams"][c]) for c in cameras}
         try:
             for wi, (lo, hi) in enumerate(plan["windows"]):
@@ -1164,6 +1220,18 @@ def export(root: Path, repo_id: str, out: Path | None, fps: int,
                 window_task = (_wm[wi].get("task") if wi < len(_wm) and isinstance(_wm[wi], dict) else None) or plan["task"]
 
                 w_state, w_action, activity = window_rows(plan, grid)
+                if TARGETS is not None:
+                    # JOIN BY TIME CONTAINMENT, never by index: target_cycles.json's `k`
+                    # and the window list's ordering come from different processes and
+                    # are not guaranteed to agree, so a positional join would mislabel
+                    # whole windows silently. grid is absolute epoch seconds
+                    # (load_windows returns absolute seconds), the same clock
+                    # target_cycles.json stamps t_start/t_end in.
+                    trows = TARGETS.get(plan["ep"].name) or []
+                    tcol = np.array([_target_windows.lookup(trows, float(t))
+                                     for t in grid], dtype=np.float32)
+                    w_state = np.concatenate(
+                        [np.asarray(w_state, dtype=np.float32), tcol], axis=1)
                 veto = idle_arm_veto(activity, max_idle_divergence)
                 if veto:
                     report.reject(plan["ep"].name, veto)
@@ -1291,9 +1359,47 @@ def main(argv=None) -> int:
                          "with {'windows': {episode: [[t0, t1], ...]}} (absolute "
                          "seconds). Each window becomes one training episode; an "
                          "episode missing from the file is rejected, not exported whole.")
+    ap.add_argument("--targets", default=None,
+                    help="recordings root holding <episode>/target_cycles.json. Appends "
+                         "[target_u, target_v, target_valid] to observation.state "
+                         "(state width becomes dof+3). An episode being exported that "
+                         "has no target_cycles.json is REJECTED loudly, never exported "
+                         "unconditioned into a conditioned dataset.")
+    ap.add_argument("--target-mask", type=float, default=0.0,
+                    help="fraction of WINDOWS exported blind (target_valid=-1, u=v=0). "
+                         "0.5 is the validated instance (NoMaD). Masked per window, "
+                         "never per frame: the goal is constant over a cycle by "
+                         "construction and per-frame flicker is a train/deploy mismatch.")
+    ap.add_argument("--targets-absent", choices=("reject", "mask"), default="reject",
+                    help="what to do with an episode that has no target_cycles.json "
+                         "inside a --targets export. 'reject' (default) drops it loudly. "
+                         "'mask' exports it 10-D with target_valid=-1 everywhere -- ONLY "
+                         "for widening an old corpus so it can be merged with a "
+                         "conditioned one (merge requires identical features).")
+    ap.add_argument("--target-seed", type=int, default=0,
+                    help="seed for --target-mask; the same seed reproduces the same "
+                         "blind windows exactly. Recorded in the export manifest.")
     ap.add_argument("--dry-run", action="store_true",
                     help="report what would be exported, write nothing")
     a = ap.parse_args(argv)
+    if a.targets:
+        global TARGETS, TARGET_MANIFEST
+        doc = _target_windows.load_targets(a.targets, p_mask=a.target_mask,
+                                           seed=a.target_seed)
+        TARGETS, TARGET_MANIFEST = doc["targets"], doc["manifest"]
+        global TARGETS_ABSENT
+        TARGETS_ABSENT = a.targets_absent
+        m = TARGET_MANIFEST
+        print(f"targets         : {m['supplied']} conditioned / {m['cycles']} cycles "
+              f"across {len(TARGETS)} episodes from {a.targets}")
+        print(f"                  masked {m['masked']} (p={a.target_mask}, "
+              f"seed={a.target_seed}), no moved_n {m['no_moved_n']}, "
+              f"no frame {m['no_frame']}, bad {m['bad']}")
+        if not m["supplied"]:
+            ap.error("--targets: not one cycle carries a usable target. Exporting now "
+                     "would write a dataset whose target_valid is -1 everywhere -- a "
+                     "dead channel that trains and evaluates without ever complaining. "
+                     "Run training_experiment/tools/target_corpus_audit.py first.")
     if a.windows:
         if a.window_mode != "full":
             ap.error("--windows only applies to --window-mode full")
