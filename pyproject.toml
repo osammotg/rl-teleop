@@ -1,0 +1,208 @@
+[build-system]
+requires = ["flit_core >= 3.4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "robots_realtime"
+version = "0.1.0"
+description = "A collection of realtime & high-frequency control interfaces for robot arms"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "viser",
+    "tyro",
+    "omegaconf",
+    "portal",
+    "dm-env==1.6",
+    "dm_control==1.0.30",
+    "dotdict==0.1",
+    "dynamixel-sdk",
+    "numpy",
+    "opencv-python",
+    "robot_descriptions",
+    "yourdfpy",
+    "ruff",
+    "pyroki @ git+https://github.com/chungmin99/pyroki.git@59aa21f",
+    "jaxls @ git+https://github.com/brentyi/jaxls.git@5f766d3",
+    "matplotlib",
+    "msgpack",
+    "msgpack_numpy",
+    "minimalmodbus",
+    "i2rt",
+    "uvicorn",
+    "fastapi",
+    "lerobot[feetech]",
+    "lerobot_teleoperator_yamactiveleader",
+    "xdof_sdk",
+    "gymnasium>=0.29",
+    "pyzmq>=27.1.0",
+    "python-can>=4.3.0",
+    "mcap>=1.3.1",
+    "mcap-protobuf-support>=0.5.4",
+    "protobuf>=6.33.1",
+    "openpi-client==0.1.2",
+    "pyrealsense2>=2.55",
+    "rerun-sdk",
+    "ruckig",
+    "easyocr",
+    # PINNED TO A CUDA BUILD ON PURPOSE -- see [[tool.uv.index]] below.
+    # torch arrives transitively via lerobot[feetech] and easyocr, so without
+    # these two lines uv resolves it from PyPI, which ships the cu126 build.
+    "torch==2.7.1",
+    "torchvision==0.22.1",
+]
+
+[project.scripts]
+rr-session = "robots_realtime.rr_session_cli:main"
+rr-replay  = "robots_realtime.rr_replay_cli:main"
+rr-bus     = "robots_realtime.rr_bus_cli:main"
+
+[project.optional-dependencies]
+sensors = [
+    "pyzed",
+]
+franka_panda = [
+    "panda_python",
+]
+mjlab_sim = [
+    "mjlab",
+]
+sim = [
+    "gymnasium>=0.29",
+]
+
+# TORCH MUST COME FROM THE cu128 INDEX, NOT PyPI.
+#
+# The rig's GPU is a 5090 (sm_120). PyPI's torch 2.7.1 is built against cu126,
+# which has NO KERNELS for sm_120: torch.cuda.is_available() returns True, the
+# device name reports correctly, and the first matmul dies with "no kernel image
+# is available for execution on the device".
+#
+# Before this pin, `uv run <anything>` re-synced from uv.lock and swapped a
+# hand-installed cu128 torch back to cu126 -- 14 packages, silently, in under a
+# second. Measured 2026-07-29: starting the arm session with `uv run rr-session`
+# did exactly that, and the failure only surfaces later as the policy losing the
+# GPU, which reads as "the policy is bad" rather than "the install changed".
+#
+# `explicit = true` means this index is used ONLY for the packages mapped to it
+# below, so nothing else in the graph gets resolved against the PyTorch mirror.
+#
+# IF A NON-BLACKWELL MACHINE JOINS THIS PROJECT: cu128 needs driver >= 525 and is
+# fine on Ampere/Ada too, so this should not need per-machine branching. If one
+# genuinely needs cu126, make the index choice conditional rather than reverting
+# this -- going back to PyPI silently breaks the 5090.
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128" }]
+torchvision = [{ index = "pytorch-cu128" }]
+panda_python ={ path = "dependencies/panda_py_0.7.5_libfranka_0.10.0/panda_python-0.7.5+libfranka.0.10.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl" }
+pyzed = { path = "dependencies/pyzed-5.1-cp311-cp311-linux_x86_64.whl" }
+i2rt = { path = "dependencies/i2rt", editable = true }
+lerobot_teleoperator_yamactiveleader = { path = "dependencies/lerobot_teleoperator_yamactiveleader", editable = true }
+
+[tool.uv]
+override-dependencies = [
+    "numpy==1.26.4",
+    # mjlab requires mujoco>=3.5.0 and tyro>=1.0.1; override i2rt's hard pins.
+    # dm_control>=1.0.30 only needs mujoco>=3.3.2, so 3.5.0 is fine for all.
+    "mujoco>=3.5.0",
+    "tyro>=1.0.1",
+]
+# ruckig 0.15.3's sdist uses the pre-0.10 `cmake.targets` key, which
+# scikit-build-core>=0.10 rejects. Pin the build backend below 0.10 so the
+# source build succeeds.
+build-constraint-dependencies = [
+    "scikit-build-core<0.10",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["robots_realtime*"]
+exclude = ["configs*"]
+
+[project.urls]
+Repository = "https://github.com/uynitsuj/robots_realtime"
+
+[tool.flit.module]
+name = "robots_realtime"
+
+[tool.ruff]
+line-length = 119 # Set the max line length to 119 characters.
+# keep in alphabetical order
+lint.select = [
+    "ANN",  # annotations
+    "B",  # bugbear rules
+    "E",  # pycodestyle errors.
+    "F",  # Pyflakes rules.
+    "PLC",  # Pylint convention warnings.
+    "PLE",  # Pylint errors.
+    "PLR",  # Pylint refactor recommendations.
+    "PLW",  # Pylint warnings.
+    "I",  # Import sorting.
+    "RUF"  # Ruff rules.
+]
+# keep in alphabetical/numerical order
+lint.ignore = [
+    "ANN002",
+    "ANN003",
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
+    "E402",
+    "E501",
+    "E741", # Ambiguous variable name. (l, O, or I)
+    "F405",
+    "F841",
+    "PLC0414",  # Import alias does not rename variable. (this is used for exporting names)
+    "PLC1901",  # Use falsey strings.
+    "PLR0911",  # Too many return statements.
+    "PLR0912",  # Too many branches.
+    "PLR0913",  # Too many arguments.
+    "PLR0915",  # Too many statements.
+    "PLR1722",
+    "PLR2004",  # Magic value used in comparison.
+    "PLW0603",  # Global statement updates are discouraged.
+    "PLW2901",  # For loop variable overwritten.
+    "RUF001",
+    "RUF009"
+]
+lint.extend-select = ["E501"]
+exclude = ["*.ipynb", "dependencies/*"]
+
+[tool.ruff.format]
+docstring-code-format = true
+skip-magic-trailing-comma = false
+
+[tool.pyright]
+pythonVersion = "3.11"
+ignore = ["dependencies/**", "robots_realtime/scripts/**"]
+
+reportMissingImports = "none"
+reportAttributeAccessIssue = "none"
+
+[tool.coverage.report]
+exclude_also = [
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    "def __repr__",
+]
+omit = [
+    "*exceptions.py",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.12.3",
+]
+
+[tool.ruff.lint.flake8-annotations]
+ignore-fully-untyped = true
+suppress-none-returning = true
+suppress-dummy-args = true
+mypy-init-return = true
+allow-star-arg-any = true

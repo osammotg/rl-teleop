@@ -1,0 +1,84 @@
+{
+ "note": "Round 2 -- the same axes, on the branch that wins. Runs after ft_from_v1_20k.",
+ "why_no_chunk_or_vae_arms": "MEASURED, not assumed: --policy.path with a different chunk_size fails at load with 'size mismatch for model.decoder_pos_embed.weight: copying a param with shape [100,512], the shape in current model is [50,512]' and the same for vae_encoder_pos_enc. chunk_size and use_vae shape the network, so they can ONLY be tested from scratch -- which is why the from-scratch arms in queue.json are still worth running even though that branch loses. If a smaller chunk helps a lot from scratch, the follow-up is to retrain a v1 two-camera BASE at that chunk and rebase from it.",
+ "runs": [
+  {
+   "id": "w_kl1",
+   "note": "kl_weight 1.0 on the WARM branch. The best-motivated axis (the CVAE posterior collapses at the stock weight) applied to the branch that actually wins.",
+   "keep_checkpoints": 2,
+   "timeout_s": 3600,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--steps=6000",
+    "--save_freq=3000",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--policy.kl_weight=1.0"
+   ]
+  },
+  {
+   "id": "w_frozen",
+   "note": "Freeze the ImageNet resnet18 on the warm branch. From-scratch overfits with more steps; if the backbone is where that happens, freezing a PRETRAINED backbone should help more here than it does from scratch.",
+   "keep_checkpoints": 2,
+   "timeout_s": 3600,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--steps=6000",
+    "--save_freq=3000",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--policy.optimizer_lr_backbone=0.0"
+   ]
+  },
+  {
+   "id": "w_seed2",
+   "note": "Seed only, warm branch. Bounds run-to-run variance on the branch we will actually ship, which is the number every other warm comparison has to clear.",
+   "keep_checkpoints": 2,
+   "timeout_s": 3600,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--steps=6000",
+    "--save_freq=3000",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=2000",
+    "--wandb.enable=false"
+   ]
+  },
+  {
+   "id": "w_ft_12k",
+   "note": "12k steps. Extends the fine-tune duration curve: 3k=0.8996, 6k=0.9178, 20k pending. Where does the warm branch turn over, if it does?",
+   "keep_checkpoints": 2,
+   "timeout_s": 3600,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--steps=12000",
+    "--save_freq=3000",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false"
+   ]
+  }
+ ]
+}

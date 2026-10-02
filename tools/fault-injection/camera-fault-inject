@@ -1,0 +1,113 @@
+#!/bin/bash
+# camera-fault-inject — root helper for camera fault injection on the Bühler kitting rig.
+#
+# WHY A WRAPPER AND NOT `sudo tee`: granting NOPASSWD on tee/dd/cp/sh/python is
+# equivalent to granting full root, because those commands can write anywhere. This
+# script accepts only a fixed verb and a port path from a hardcoded allowlist, so the
+# grant cannot be widened by argument. Keep it that way.
+#
+# INSTALL (operator, once, needs a password):
+#   sudo install -m 0755 -o root -g root \
+#     tools/fault-injection/camera-fault-inject /usr/local/sbin/camera-fault-inject
+#   echo 'tommaso ALL=(root) NOPASSWD: /usr/local/sbin/camera-fault-inject' \
+#     | sudo EDITOR='tee' visudo -f /etc/sudoers.d/camera-fault-inject
+#   sudo chmod 0440 /etc/sudoers.d/camera-fault-inject
+#
+# SECURITY REQUIREMENTS (all three must hold, or this becomes a root escalation):
+#   1. Owned by root:root and mode 0755 — NOT writable by the rig user.
+#   2. Lives outside any user-writable directory (/usr/local/sbin, not the repo).
+#   3. The sudoers line names this absolute path only. Never add a wildcard.
+#
+# USAGE (no password once installed):
+#   sudo /usr/local/sbin/camera-fault-inject down   9-1.1   # simulate unplug
+#   sudo /usr/local/sbin/camera-fault-inject up     9-1.1   # simulate replug
+#   sudo /usr/local/sbin/camera-fault-inject unbind 9-1.1   # detach uvcvideo driver only
+#   sudo /usr/local/sbin/camera-fault-inject bind   9-1.1   # reattach uvcvideo driver
+#   sudo /usr/local/sbin/camera-fault-inject status
+#
+# UNINSTALL:
+#   sudo rm /usr/local/sbin/camera-fault-inject /etc/sudoers.d/camera-fault-inject
+
+set -euo pipefail
+
+# Hardcoded allowlist: the four rig cameras, by USB port path. Nothing else is
+# addressable through this script. Re-verify these after any physical replug —
+# the two wrist cameras share serial SN0001, so the port path IS their identity.
+#   9-1.2 = wrist right      9-1.3 = wrist left
+#   1-4   = scanning camera (D435i)
+#   4-1   = top-down camera (D455)   <-- currently on the bad ASMedia controller
+#
+# UPDATED 2026-08-11 23:30: wrist right moved 1.1 -> 1.2 on a replug, and the live
+# config followed it. The old 9-1.1 entry made this tool report ABSENT for a camera
+# that was streaming fine — a tool that lies about a camera is the bug we are here
+# to kill, so re-check these against `ls /dev/v4l/by-path/` after ANY replug.
+ALLOWED_PORTS=("9-1.2" "9-1.3" "1-4" "4-1")
+
+# The top-down and scanning cameras are RealSense. Bus-level deauthorize is NOT the
+# banned firmware hardware_reset(), but this rig has history, so RealSense requires an
+# explicit --allow-realsense flag rather than being reachable by accident.
+REALSENSE_PORTS=("1-4" "4-1")
+
+die() { echo "camera-fault-inject: $*" >&2; exit 1; }
+
+is_allowed() {
+    local p="$1" a
+    for a in "${ALLOWED_PORTS[@]}"; do [[ "$p" == "$a" ]] && return 0; done
+    return 1
+}
+
+is_realsense() {
+    local p="$1" a
+    for a in "${REALSENSE_PORTS[@]}"; do [[ "$p" == "$a" ]] && return 0; done
+    return 1
+}
+
+cmd_status() {
+    local p
+    for p in "${ALLOWED_PORTS[@]}"; do
+        if [[ -r "/sys/bus/usb/devices/$p/authorized" ]]; then
+            printf '%-8s authorized=%s  product=%s\n' \
+                "$p" \
+                "$(cat "/sys/bus/usb/devices/$p/authorized")" \
+                "$(cat "/sys/bus/usb/devices/$p/product" 2>/dev/null || echo '?')"
+        else
+            printf '%-8s ABSENT\n' "$p"
+        fi
+    done
+}
+
+main() {
+    [[ $# -ge 1 ]] || die "usage: camera-fault-inject {down|up|unbind|bind|status} [port] [--allow-realsense]"
+
+    local verb="$1"; shift
+    [[ "$verb" == "status" ]] && { cmd_status; exit 0; }
+
+    [[ $# -ge 1 ]] || die "verb '$verb' requires a port path"
+    local port="$1"; shift
+
+    local allow_rs=0
+    [[ "${1:-}" == "--allow-realsense" ]] && allow_rs=1
+
+    is_allowed "$port" || die "port '$port' is not in the allowlist (${ALLOWED_PORTS[*]})"
+
+    if is_realsense "$port" && [[ $allow_rs -ne 1 ]]; then
+        die "port '$port' is a RealSense; pass --allow-realsense to act on it deliberately"
+    fi
+
+    local dev="/sys/bus/usb/devices/$port"
+    [[ -d "$dev" ]] || die "device path '$dev' does not exist (already down, or moved ports?)"
+
+    case "$verb" in
+        down)   echo 0 > "$dev/authorized"; echo "$port deauthorized (simulated unplug)" ;;
+        up)     echo 1 > "$dev/authorized"; echo "$port authorized (simulated replug)" ;;
+        unbind) echo "$port:1.0" > /sys/bus/usb/drivers/uvcvideo/unbind 2>/dev/null \
+                    || die "unbind failed for $port:1.0 (already unbound?)"
+                echo "$port:1.0 unbound from uvcvideo" ;;
+        bind)   echo "$port:1.0" > /sys/bus/usb/drivers/uvcvideo/bind 2>/dev/null \
+                    || die "bind failed for $port:1.0 (already bound?)"
+                echo "$port:1.0 bound to uvcvideo" ;;
+        *)      die "unknown verb '$verb' (want: down|up|unbind|bind|status)" ;;
+    esac
+}
+
+main "$@"
