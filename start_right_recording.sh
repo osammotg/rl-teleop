@@ -341,6 +341,11 @@ port_up 8799 || ( cd ../cockpit && setsid python3 -m http.server 8799 </dev/null
 # 3870 read cycles, 44 confident reads, and exactly TWO of them fell inside an active
 # take. The reader was perfect and the session produced no usable data, because nothing
 # tied the two together. Two things fix that and both live here:
+#   --budget-s 3.0     was 1.5, which at the NATIVE 640x480 cost of ~0.42 s/frame buys
+#                      only ~3 frames. Measured on episode_201623_4120d5ad: 60 % of the
+#                      frames in a carry are legible at 640x480 and the label is readable
+#                      1.6 s in, so 3 frames = 92 % and 4 = 96 %. 3.0 s buys ~7, which is
+#                      margin not waste: the pass stops at the first confident read.
 #   --gate rec-phase   OCR runs only inside a take whose phase is isolate or pick, so a
 #                      make_space take costs no GPU and a quiet reader is CORRECT.
 #   the sidecar        at REC-stop it writes <episode>/sku_reads.json + the evidence
@@ -355,6 +360,7 @@ if [ "${SKU_READER:-1}" = "1" ] && ! port_up 8803; then
   RLPY="$PWD/.venv/bin/python3"
   ( cd ../yam-pick-pipeline && setsid "$RLPY" wrist_ocr/reader_server.py \
       --arms right --gate "${SKU_GATE:-rec-phase}" \
+      --budget-s "${SKU_BUDGET_S:-3.0}" \
       </dev/null > /tmp/sku_reader_right.log 2>&1 & )
   for i in $(seq 1 20); do port_up 8803 && break; sleep 1; done
 fi
@@ -363,6 +369,42 @@ if port_up 8803; then
 elif [ "${SKU_READER:-1}" = "1" ]; then
   ylw "  ⚠ SKU reader did NOT start — see /tmp/sku_reader_right.log."
   ylw "    Recording still works; you simply get no part numbers and no sku_reads.json."
+fi
+
+# ── 4c. the recording loop's two other services ─────────────────────────────
+# The SKU page drives a 30-packet session hands-free, and it needs both of these. They
+# are observers: neither opens a camera device and neither touches the arm.
+#
+#   :8815 phase_recorder  owns the HOME-TO-HOME CYCLES (and REC, and the bad-cycle mark).
+#                         RESTARTED, not reused, when it is already recording: on
+#                         2026-09-21 an orphan from a dead episode sat "recording" for
+#                         3.9 h failing to write cycle_labels.json, and a session run
+#                         through it would have produced ZERO cycle labels, discovered
+#                         only at export.
+#   :8840 segbench        owns candidate segmentation and the target choices the loop
+#                         writes to targets.jsonl.
+if [ "${REC_LOOP:-1}" = "1" ]; then
+  if port_up 8815 && curl -s -m 3 http://127.0.0.1:8815/api/state 2>/dev/null \
+       | grep -q '"recording": *true'; then
+    ylw "  ⚠ phase_recorder :8815 is stuck mid-take from a previous session — restarting it"
+    for pp in $(pids_on 8815); do kill "$pp" 2>/dev/null; done
+    sleep 2
+  fi
+  if ! port_up 8815; then
+    ( cd ../training_experiment && setsid "$PWD/../rl-teleop/.venv/bin/python3" \
+        tools/phase_recorder.py --phase isolate --arm right \
+        </dev/null > /tmp/phase_recorder.log 2>&1 & )
+    for i in $(seq 1 15); do port_up 8815 && break; sleep 1; done
+  fi
+  if ! port_up 8840; then
+    ( cd ../yam-pick-pipeline/perception/segbench && setsid python3 server.py --port 8840 \
+        </dev/null > /tmp/segbench.log 2>&1 & )
+    for i in $(seq 1 15); do port_up 8840 && break; sleep 1; done
+  fi
+  port_up 8815 && grn "  ✓ Zyklen :8815 (phase_recorder — owns home-to-home cycles)" \
+                || ylw "  ⚠ phase_recorder :8815 down — see /tmp/phase_recorder.log (no cycles, no auto-segment)"
+  port_up 8840 && grn "  ✓ Segmentierung :8840 (segbench — candidates + target choices)" \
+                || ylw "  ⚠ segbench :8840 down — see /tmp/segbench.log (no candidates)"
 fi
 
 sleep 4
@@ -406,7 +448,7 @@ cat <<EOF
   IF YOU ARE ON SSH, forward these ports or the page will look dead even though
   every server here is healthy -- 8792, 8797, 8805 bind 127.0.0.1 only:
 
-      8799  8791  8792  8806  8803  8797
+      8799  8791  8792  8806  8803  8797  8815  8840
 
   BEFORE RECORDING MORE THAN ONE TAKE:
     1. set TAKT to Auto      (each scored placement saves the take, one take = one grasp)
