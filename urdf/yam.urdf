@@ -155,8 +155,14 @@
     </inertial>
     <!-- Part link_6_parts -->
     <visual>
-      <origin xyz="-5.10177e-05 -0.00269952 0.0481778" rpy="-1.5708 -1.5708 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
+        <!-- 2026-09-21: the stock one-jaw gripper with a 30 mm void replaced by the
+             validated twin geometry: both jaws, your printed chain, the wrist camera,
+             per-part convex hulls, jaws-closed UNION jaws-open so a keep-out sees the
+             widest case. Built by kitbox/gripper_cad.py from
+             loops/simtwin/sim/assets/yam_l4310.urdf after the stock face plate and tab
+             were removed (validated to 0.6 mm against 14 closed-jaw touches). -->
         <mesh filename="package://assets/link_6_visual.stl"/>
       </geometry>
       <material name="link_6_parts_material">
@@ -164,8 +170,14 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-5.10177e-05 -0.00269952 0.0481778" rpy="-1.5708 -1.5708 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
+        <!-- 2026-09-21: the stock one-jaw gripper with a 30 mm void replaced by the
+             validated twin geometry: both jaws, your printed chain, the wrist camera,
+             per-part convex hulls, jaws-closed UNION jaws-open so a keep-out sees the
+             widest case. Built by kitbox/gripper_cad.py from
+             loops/simtwin/sim/assets/yam_l4310.urdf after the stock face plate and tab
+             were removed (validated to 0.6 mm against 14 closed-jaw touches). -->
         <mesh filename="package://assets/link_6_collision.stl"/>
       </geometry>
     </collision>
