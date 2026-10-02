@@ -1,0 +1,12 @@
+# YAM FT232H teaching-handle serial aliases
+# Install with: sudo cp custom/99-yam-ft232h-leaders.rules /etc/udev/rules.d/99-yam-ft232h-leaders.rules
+# Then: sudo udevadm control --reload-rules && sudo systemctl restart systemd-udevd
+# Replug the FT232H devices after reloading rules.
+
+# Left leader teaching handle FT232H (motor IDs 1-7).
+# Stable ID: FTDI FT232H serial FT94EW3S.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", ATTRS{serial}=="FT94EW3S", GROUP="users", MODE="0660", SYMLINK+="leader-left"
+
+# Right leader teaching handle FT232H (motor IDs 8-14).
+# Stable ID: FTDI FT232H serial FTA2U44N.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014", ATTRS{serial}=="FTA2U44N", GROUP="users", MODE="0660", SYMLINK+="leader-right"

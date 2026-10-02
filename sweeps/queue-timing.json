@@ -1,0 +1,14 @@
+{
+  "note": "Throughput probe. 500 steps at the production batch size, to size the real sweep in wall-clock and disk before committing the night.",
+  "runs": [{
+    "id": "timing_probe",
+    "keep_checkpoints": 1,
+    "timeout_s": 3600,
+    "args": [
+      "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+      "--policy.type=act", "--policy.device=cuda", "--policy.push_to_hub=false",
+      "--steps=500", "--save_freq=500", "--batch_size=8", "--num_workers=4",
+      "--wandb.enable=false"
+    ]
+  }]
+}

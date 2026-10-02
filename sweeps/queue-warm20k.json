@@ -1,0 +1,24 @@
+{
+ "note": "warm-start 20k, comparable with the eight from-scratch arms",
+ "runs": [
+  {
+   "id": "ft_from_v1_20k",
+   "note": "Same warm start at 20k steps, so it is directly comparable with the eight from-scratch arms of the main sweep.",
+   "keep_checkpoints": 2,
+   "timeout_s": 7200,
+   "args": [
+    "--dataset.repo_id=ETHRC/yam_grasp_v2_wrist",
+    "--dataset.episodes=[0,1,2,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,46,47,48,49,50,51,52,53,54,55,56,63,64,65,66,67,68]",
+    "--policy.path=sweeps/rebased/v1_50k_wristonly",
+    "--policy.device=cuda",
+    "--policy.push_to_hub=false",
+    "--batch_size=8",
+    "--num_workers=4",
+    "--seed=1000",
+    "--wandb.enable=false",
+    "--steps=20000",
+    "--save_freq=10000"
+   ]
+  }
+ ]
+}

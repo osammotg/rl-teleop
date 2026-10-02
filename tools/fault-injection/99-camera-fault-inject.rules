@@ -1,0 +1,46 @@
+# Grant the rig operator write access to the USB `authorized` attribute for the four
+# rig cameras, so an unplug/replug can be simulated in software with NO sudo at runtime.
+#
+# Writing 0 to a device's `authorized` deauthorizes it: the kernel detaches it from the
+# driver stack and it disappears from /dev/video* exactly as if the cable were pulled.
+# Writing 1 re-authorizes it: it re-enumerates exactly as if the cable were plugged back
+# in. See https://www.kernel.org/doc/html/latest/usb/authorization.html
+#
+# THIS IS NOT `hardware_reset()`. librealsense's hardware_reset() is a firmware-level
+# reset and is BANNED on this rig (it leaves colour and IR working and depth dead until
+# a physical replug). `authorized` is a USB bus-level attach/detach and does not touch
+# camera firmware. They are different mechanisms.
+#
+# Scope: exactly the four camera VID:PIDs on this rig. Nothing else is affected.
+# Group `video` is used because the rig operator is already a member; no new group.
+#
+# INSTALL (operator, once, needs a password):
+#   sudo install -m 0644 -o root -g root \
+#     tools/fault-injection/99-camera-fault-inject.rules \
+#     /etc/udev/rules.d/99-camera-fault-inject.rules
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger --subsystem-match=usb --action=add
+#
+# VERIFY (no sudo):
+#   stat -c '%U:%G %a' /sys/bus/usb/devices/9-1.1/authorized     # expect root:video 664
+#   echo 0 | tee /sys/bus/usb/devices/9-1.1/authorized           # wrist camera vanishes
+#   echo 1 | tee /sys/bus/usb/devices/9-1.1/authorized           # wrist camera returns
+#
+# UNINSTALL:
+#   sudo rm /etc/udev/rules.d/99-camera-fault-inject.rules && sudo udevadm control --reload-rules
+
+# ── wrist left + wrist right (Innomaker U20CAM; both share this VID:PID *and* the
+#    serial SN0001, so the port path 9-1.1 / 9-1.3 is their only identity) ──────────
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0c45", ATTR{idProduct}=="6366", \
+  RUN+="/bin/sh -c 'chgrp video /sys%p/authorized && chmod 0664 /sys%p/authorized'"
+
+# ── scanning camera (RealSense D435i) ─ OPT-IN: uncomment to allow fault injection ──
+# The RealSense path has a history on this rig (depth killed by a firmware reset once).
+# `authorized` is bus-level and should be safe, but leave these commented until you have
+# watched one deauthorize/reauthorize cycle yourself and confirmed depth still works.
+#ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8086", ATTR{idProduct}=="0b3a", \
+#  RUN+="/bin/sh -c 'chgrp video /sys%p/authorized && chmod 0664 /sys%p/authorized'"
+
+# ── top-down camera (RealSense D455) ─ OPT-IN, same caveat ─────────────────────────
+#ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8086", ATTR{idProduct}=="0b5c", \
+#  RUN+="/bin/sh -c 'chgrp video /sys%p/authorized && chmod 0664 /sys%p/authorized'"

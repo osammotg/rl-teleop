@@ -1,0 +1,10 @@
+[submodule "dependencies/i2rt"]
+	path = dependencies/i2rt
+	url = https://github.com/i2rt-robotics/i2rt.git
+	commit = cbe48976b44aae45af856c62545be00ea2feed11
+[submodule "dependencies/mjlab"]
+	path = dependencies/mjlab
+	url = https://github.com/mujocolab/mjlab.git
+[submodule "dependencies/lerobot_teleoperator_yamactiveleader"]
+	path = dependencies/lerobot_teleoperator_yamactiveleader
+	url = https://github.com/uynitsuj/lerobot_teleoperator_yamactiveleader.git
